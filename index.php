@@ -3,8 +3,12 @@
 // php index.php error             -> one error from the command line
 require __DIR__ . '/vendor/autoload.php';
 
+// every request is a fresh PHP run, so the dashboard's "Use my DSN" is just
+// a different init for this one request
+$body = PHP_SAPI === 'cli' ? [] : (json_decode(file_get_contents('php://input') ?: '{}', true) ?: []);
+
 \Sentry\init([
-    'dsn' => getenv('SENTRY_DSN') ?: null,
+    'dsn' => ($body['dsn'] ?? null) ?: (getenv('SENTRY_DSN') ?: null),
     'environment' => getenv('SENTRY_ENVIRONMENT') ?: 'local',
     'release' => getenv('RELEASE') ?: 'sample-php@dev',
     'send_default_pii' => false,
@@ -41,6 +45,5 @@ if (PHP_SAPI === 'cli') {
     exit;
 }
 
-$body = json_decode(file_get_contents('php://input') ?: '{}', true);
 header('Content-Type: application/json');
 echo json_encode(['event_id' => generate($body['run'] ?? 'manual', $body['fresh'] ?? true)]);

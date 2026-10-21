@@ -62,6 +62,9 @@ read by the SDK on the server (PHP files are there anyway), nothing to upload.
 
 `\Sentry\withScope()` in the sample adds `run_id` tag and fingerprint only for this one event.
 
+Request body can have `"dsn"`, the playground sends it for **Use my DSN**. Every PHP request is a fresh run, so
+it is just `\Sentry\init` with that DSN for this request.
+
 ## Troubleshooting
 
 | Symptom | Why |
